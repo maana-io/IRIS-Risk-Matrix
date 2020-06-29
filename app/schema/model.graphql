@@ -1,0 +1,88 @@
+#
+#
+#  Data Types
+#
+#
+
+type RiskProfile {
+    id: ID!
+    compoundRisk: Float!
+    riskBuckets: [RiskBucket!]!
+}
+
+type RiskBucket {
+    id: ID!
+    severity: String!
+    likelihood: String!
+    numberOfRisks: Int!
+    averageConfidenceLevel: Float!
+    numberOfLowConfidenceRisks: Int!
+    risks: [ClassifiedRisk!]!
+}
+
+type ClassifiedRisk {
+    id: ID!
+    risk: Risk!
+    severity: String!
+    likelihood: String!
+    confidenceLevel: Float!
+    lowConfidence: Boolean!
+    score: Float!
+    contributors: [Contributor!]!
+    recommends: [Contributor!]!
+}
+
+type Contributor {
+    id: ID!
+    featureName: String!
+    featureValue: String!
+    weight: Float!
+}
+
+type Risk {
+    id: ID!
+    title: String!
+    description: String!
+    cause: String!
+    consequence: String!
+    topology: Topology!
+    discipline: DisciplineRisk!
+}
+
+type Topology {
+    id: ID!
+    onshoreOffshore: String!
+    upstreamDownstream: String!
+    oilGas: String!
+    facilityType: String!
+}
+
+type DisciplineRisk {
+    id: ID!
+    name: String!
+}
+
+type LabeledRisk {
+    id: ID!
+    risk: Risk!
+    severity: String!
+    likelihood: String!
+    dateLabel: String
+    labelBy: String
+}
+
+type User {
+    id: ID!
+    userId: String!
+    fullName: String!
+    email: String!
+}
+
+type UserComment {
+    id: ID!
+    user: User
+    on: String
+    about: String
+    rating: Int
+    comment: String
+}

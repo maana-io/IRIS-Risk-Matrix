@@ -1,0 +1,214 @@
+
+
+schema {
+  query: Query
+}
+
+
+
+
+input TopologyInput {
+    id: ID!
+    onshoreOffshore: String!
+    upstreamDownstream: String!
+    oilGas: String!
+    facilityType: String!
+}
+
+
+input DisciplineRiskInput {
+    id: ID!
+    name: String!
+}
+
+
+input RiskInput {
+    id: ID!
+    title: String!
+    description: String!
+    cause: String!
+    consequence: String!
+    topology: TopologyInput!
+    discipline: DisciplineRiskInput!
+}
+
+
+
+input LabeledRiskInput {
+    id: ID!
+    risk: RiskInput!
+    severity: String!
+    likelihood: String!
+    dateLabel: String
+    labelBy: String
+}
+
+
+
+input RiskProfileInput {
+    id: ID!
+    compoundRisk: Float!
+    riskBuckets: [RiskBucketInput!]!
+}
+
+
+input RiskBucketInput {
+    id: ID!
+    severity: String!
+    likelihood: String!
+    numberOfRisks: Int!
+    averageConfidenceLevel: Float!
+    numberOfLowConfidenceRisks: Int!
+    risks: [ClassifiedRiskInput!]!
+}
+
+
+input ClassifiedRiskInput {
+    id: ID!
+    risk: RiskInput!
+    severity: String!
+    likelihood: String!
+    confidenceLevel: Float!
+    lowConfidence: Boolean!
+    score: Float!
+    contributors: [ContributorInput!]!
+    recommends: [ContributorInput!]!
+}
+
+
+
+
+#
+#imported types from Classification service
+#
+type Dataset {
+    id: ID!
+    features: [FeatureData!]!
+}
+
+
+type DataInstance {
+    id: ID!
+    dataset: Dataset!       #filtered to contains only one row
+    index: Int!
+}
+
+
+type LabeledDataset {
+    id: ID!
+    data: Dataset!
+    label: FeatureData!
+}
+
+
+type FeatureData {
+    id: ID!
+    feature: Feature!
+    data: [DataEntry!]!
+}
+
+type Feature {
+    id: ID!
+    index: Int!
+    name: String!
+    type: String!
+}
+
+
+type DataEntry {
+    id: ID!
+    numerical: Float
+    text: String
+    set: [String]
+}
+
+
+
+input ClassificationResultInput {
+    id: ID!
+    dataInstance: DataInstanceInput!
+    allLabels: [PredictedLabelInput!]!
+    predictedLabel: PredictedLabelInput!
+    entropy: Float!
+    contributors: [ContributorInput!]
+    recommends: [ContributorInput]
+}
+
+
+input ContributorInput {
+    id: ID!
+    featureName: String!
+    featureValue: String!
+    weight: Float!
+}
+
+
+input BatchClassificationResultInput {
+    id: ID!
+    classSummaries: [ClassificationSummaryInput!]!
+}
+
+
+input ClassificationSummaryInput {
+    id: ID!
+    label: String!
+    numInstances: Int!
+    probabilities: [Float!]!
+    entropies: [Float!]!
+    results: [ClassificationResultInput!]!
+}
+
+
+input PredictedLabelInput {
+    id: ID!
+    label: String!
+    probability: Float!
+}
+
+
+
+input DataInstanceInput {
+    id: ID!
+    dataset: DatasetInput!       #filtered to contains only one row
+    index: Int!
+}
+
+
+input DatasetInput {
+    id: ID!
+    features: [FeatureDataInput!]!
+}
+
+
+input FeatureDataInput {
+    id: ID!
+    feature: FeatureInput!
+    data: [DataEntryInput!]!
+}
+
+
+input DataEntryInput {
+    id: ID!
+    numerical: Float
+    text: String
+    set: [String]
+}
+
+
+input FeatureInput {
+    id: ID!
+    index: Int!
+    name: String!
+    type: String!
+}
+
+
+type Query {
+    flattenRisks(risks: [RiskInput]): Dataset!
+    flattenLabeledRisks(risks: [LabeledRiskInput]): LabeledDataset!
+    classificationResultsToRiskProfile(results: BatchClassificationResultInput!, profile_id: ID!): RiskProfile!
+    irisUniqueID: ID!
+    irisSeverityLikelihoodModelID: ID!
+    mergeRiskProfiles(current: RiskProfileInput, new: RiskProfileInput!): RiskProfile!
+}
+
